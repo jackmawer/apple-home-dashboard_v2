@@ -83,6 +83,13 @@ No manual YAML card definitions required.
 **Switch handling:** Regular switches are excluded by default (to avoid clutter from technical / helper switches). Outlets (device_class=outlet) are always shown. You can enable all switches or selectively add specific ones via customization.
 
 ---
+## 🆕 What's New in v1.10.0
+
+### Smarter chips and faster hiding
+- **Water chip:** now only appears when there is actual water data (moisture/leak sensors, water valves). Sensors whose name merely contains "water" no longer force the chip to show
+- **Hide any chip:** in Edit Home View, a button next to the chips opens a sheet with per-chip show/hide toggles (climate, lights, security, media, water, energy, battery, people, calendar). Hidden chips stay hidden until you turn them back on there
+- **Hide any card from edit mode:** while wiggling, every card gets an eye-off button that immediately excludes it from the current screen (home screen exclusion in a room view, dashboard exclusion everywhere else). Un-excluding stays in Home Settings
+
 ## 🆕 What's New in v1.9.1
 
 ### Media player: sources and speakers
