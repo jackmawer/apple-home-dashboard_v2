@@ -41,7 +41,7 @@ jobs:
       # On pull requests the build result is only a check that the sources
       # compile; dist/ is rebuilt and committed once the change reaches main.
       - name: Commit Distribution Build
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         env:
           CI_COMMIT_AUTHOR: 'CI Bot'
           CI_COMMIT_EMAIL: 'ci@noreply.github.com'
