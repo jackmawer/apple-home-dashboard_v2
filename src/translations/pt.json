@@ -164,7 +164,8 @@
     "edit_cameras_view": "Editar Vista Câmeras",
     "edit_room_view": "Editar Vista Quarto",
     "make_tall": "Tornar Alto",
-    "make_normal_size": "Tamanho Normal"
+    "make_normal_size": "Tamanho Normal",
+    "exclude_from_view": "Ocultar desta vista"
   },
   "toggles": {
     "hide_header": "Ocultar Cabeçalho",
@@ -366,5 +367,9 @@
     "nothing_playing": "Nada a reproduzir",
     "source": "Fonte",
     "speakers": "Alto-falantes"
+  },
+  "chips_edit": {
+    "title": "Ocultar chips",
+    "hint": "Os chips ocultos permanecem assim até serem reativados aqui."
   }
 }

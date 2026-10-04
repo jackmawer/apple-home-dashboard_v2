@@ -20,6 +20,9 @@ export class RoomPage {
   private _areaId?: string;
   private _config?: any;
   private _container?: HTMLElement; // Store reference to the container
+  // Set by the host view (AppleHomeView): excludes an entity from the current
+  // view's list and removes the card from the DOM without a page rebuild.
+  excludeToggler?: (entityId: string) => void | Promise<void>;
 
   constructor() {
     // Regular class constructor
@@ -455,24 +458,37 @@ export class RoomPage {
     tallButton.innerHTML = `<ha-icon icon="mdi:${cardConfig.is_tall ? 'arrow-collapse' : 'arrow-expand'}"></ha-icon>`;
     tallButton.title = cardConfig.is_tall ? localize('edit.make_normal_size') : localize('edit.make_tall');
     tallButton.classList.toggle('active', cardConfig.is_tall);
-    
+
     tallButton.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      
+
       if (onTallToggle) {
         // Use main area ID for tall card toggle, not the entity's area_id
         const newTallState = await onTallToggle(cardConfig.entity, this._areaId || 'unknown');
-        
+
         // Get the actual state from customization manager to ensure consistency
         const actualTallState = this.cardManager?.shouldCardBeTall(cardConfig.entity, this._areaId || 'unknown', this._areaId!) || false;
-        
+
         // Update visual state with the actual saved state
         this.updateTallCardVisual(wrapper, tallButton, cardConfig, actualTallState);
       }
     });
 
+    // Edit-mode quick exclude: writes straight to the exclude list held
+    // deferred by the view, then fades the card out without a rebuild.
+    const excludeButton = document.createElement('button');
+    excludeButton.className = 'entity-control-btn exclude-toggle';
+    excludeButton.innerHTML = `<ha-icon icon="mdi:eye-off"></ha-icon>`;
+    excludeButton.title = localize('edit.exclude_from_view');
+    excludeButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.excludeToggler?.(cardConfig.entity);
+    });
+
     controls.appendChild(tallButton);
+    controls.appendChild(excludeButton);
     wrapper.appendChild(controls);
     wrapper.appendChild(cardElement);
     gridContainer.appendChild(wrapper);

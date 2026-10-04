@@ -1,6 +1,7 @@
 import { AppleHomeCard } from './AppleHomeCard';
 import { DragAndDropManager } from '../utils/DragAndDropManager';
 import { EditModeManager } from '../utils/EditModeManager';
+import { ChipsEditManager } from '../utils/ChipsEditManager';
 import { AppleHeader, HeaderConfig } from '../sections/AppleHeader';
 import { CustomizationManager } from '../utils/CustomizationManager';
 import { CardManager } from '../utils/CardManager';
@@ -113,6 +114,7 @@ export class AppleHomeView extends HTMLElement {
     this.roomPage = new RoomPage();
     this.scenesPage = new ScenesPage();
     this.camerasPage = new CamerasPage();
+    this.wireExcludeTogglers();
 
     // Set up header manager dependencies
     this.appleHeader.setCustomizationManager(this.customizationManager);
@@ -1756,7 +1758,7 @@ export class AppleHomeView extends HTMLElement {
             }
           }
         </style>
-        <div class="wrapper-content ${RTLHelper.isRTL() ? 'rtl' : 'ltr'}">
+        <div class="wrapper-content ${RTLHelper.isRTL() ? 'rtl' : 'ltr'} ${['room', 'scenes', 'cameras', 'group'].includes(this.config.pageType) ? 'apple-home-view-special-page' : ''}">
           <div class="page-content">
             <div class="apple-home-header permanent-header"></div>
             <div class="permanent-chips"></div>
@@ -2022,6 +2024,48 @@ export class AppleHomeView extends HTMLElement {
     }
   }
 
+  private chipsEditManager?: ChipsEditManager;
+
+  private showChipsEditModal() {
+    if (!this._hass) return;
+    if (!this.chipsEditManager) {
+      this.chipsEditManager = new ChipsEditManager(this.customizationManager);
+      this.chipsEditManager.onChipVisibilityChange(() => {
+        // Re-render chips immediately; saves are deferred while in edit mode
+        this.chipsElement?.refresh();
+      });
+    }
+    void this.chipsEditManager.showChipsEditModal(this._hass);
+  }
+
+  /**
+   * Edit-mode "hide this card": adds the entity to the exclusion list for the
+   * current view (room view → excluded_from_home, everything else →
+   * excluded_from_dashboard), then fades the card out without a rebuild.
+   * Un-excluding stays in Home Settings — there is nothing left to tap.
+   */
+  private async handleEditExclude(entityId: string) {
+    if (!this.config) return;
+    const isRoom = this.config?.pageType === 'room';
+    if (isRoom) {
+      await this.customizationManager.toggleExcludedFromHome(entityId);
+    } else {
+      await this.customizationManager.toggleExcludedFromDashboard(entityId);
+    }
+    this.fadeOutCard(entityId);
+    this.chipsElement?.refresh();
+  }
+
+  private wireExcludeTogglers() {
+    // Sections are created lazily inside the pages' initializeSections(), which
+    // re-applies the toggler each time a page's setConfig runs.
+    this.homePage.excludeToggler = (id) => void this.handleEditExclude(id);
+    this.groupPage.excludeToggler = (id) => void this.handleEditExclude(id);
+    this.roomPage.excludeToggler = (id) => void this.handleEditExclude(id);
+    this.scenesPage.excludeToggler = (id) => void this.handleEditExclude(id);
+    this.camerasPage.excludeToggler = (id) => void this.handleEditExclude(id);
+  }
+
   private setupChipsCallback() {
     if (this.chipsElement) {
       this.chipsElement.setOnRenderCallback(() => {
@@ -2035,6 +2079,8 @@ export class AppleHomeView extends HTMLElement {
           }, 50);
         }
       });
+      // Edit-mode button that opens the chips hide/show sheet
+      this.chipsElement.setChipsEditRequested(() => this.showChipsEditModal());
     }
   }
 

@@ -645,6 +645,39 @@ export class CustomizationManager {
     return homeData.chips_order || [];
   }
 
+  // Chip visibility: DeviceGroup values the user hid via the chips edit sheet
+  async saveHiddenChips(groups: string[]) {
+    const homeData = this.getCustomization('home');
+    homeData.hidden_chips = groups;
+    await this.setCustomization('home', homeData);
+  }
+
+  getHiddenChips(): string[] {
+    const homeData = this.getCustomization('home');
+    return homeData.hidden_chips || [];
+  }
+
+  // Exclusion toggles used by the edit-mode hide button on cards
+  async toggleExcludedFromDashboard(entityId: string): Promise<boolean> {
+    const homeData = this.getCustomization('home');
+    const list: string[] = homeData.excluded_from_dashboard || [];
+    const i = list.indexOf(entityId);
+    if (i === -1) list.push(entityId); else list.splice(i, 1);
+    homeData.excluded_from_dashboard = list;
+    await this.setCustomization('home', homeData);
+    return i === -1;
+  }
+
+  async toggleExcludedFromHome(entityId: string): Promise<boolean> {
+    const homeData = this.getCustomization('home');
+    const list: string[] = homeData.excluded_from_home || [];
+    const i = list.indexOf(entityId);
+    if (i === -1) list.push(entityId); else list.splice(i, 1);
+    homeData.excluded_from_home = list;
+    await this.setCustomization('home', homeData);
+    return i === -1;
+  }
+
   // Home Settings methods
   async getFavoriteAccessories(): Promise<string[]> {
     await this.ensureCustomizationsLoaded();

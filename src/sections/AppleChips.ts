@@ -49,6 +49,7 @@ export class AppleChips {
   private editMode: boolean = false;
   private customizationManager?: any;
   private onRenderCallback?: () => void;
+  private chipsEditRequested?: () => void;
   private statusTextCache = new Map<string, string>(); // Cache for status text
   private showSwitches: boolean = false; // Cached value for showSwitches setting
   private includedSwitches: string[] = []; // Cached value for includedSwitches setting
@@ -320,6 +321,11 @@ export class AppleChips {
     this.onRenderCallback = callback;
   }
 
+  /** Called when the user taps the edit-mode "hide chips" toolbar button. */
+  setChipsEditRequested(callback: () => void) {
+    this.chipsEditRequested = callback;
+  }
+
   getEditMode(): boolean {
     return this.editMode;
   }
@@ -400,6 +406,12 @@ export class AppleChips {
   private updateChipData() {
     if (!this._hass || !this.config) return;
 
+    // Chips the user hid via the chips edit sheet (only applies on the home page)
+    const isHomeView = !this.container?.closest?.('.apple-home-view-special-page');
+    const hiddenChipsOnThisView = isHomeView
+      ? new Set<string>(this.customizationManager?.getHiddenChips?.() || [])
+      : new Set<string>();
+
     this.chips = [];
     // Entities the user excluded from the dashboard in Home Settings must not be counted either
     const home = this.customizationManager?.getCustomization('home') || {};
@@ -436,6 +448,7 @@ export class AppleChips {
 
     for (const { group, config } of deviceGroups) {
       if (!config?.enabled) continue;
+      if (hiddenChipsOnThisView.has(group as string)) continue;
 
       // Find entities that belong to this group based on domain mapping
       const groupEntities = allEntities.filter(entity => {
@@ -466,16 +479,24 @@ export class AppleChips {
       // Special handling for water group: catches entities named after water/leak/flood that
       // getDeviceGroup wouldn't otherwise route to Water (e.g. a sensor without device_class 'moisture').
       // Moisture binary_sensors are already routed to Water by getDeviceGroup, so they're excluded here to avoid double-counting.
+      // ponytail: substring match sweeps in entities whose data has nothing to do with water
+      // (e.g. a sensor whose unit or name merely contains "water"); tighten to a allowlist of
+      // real water domains/state classes if false positives ever surface again.
       if (group === DeviceGroup.WATER) {
         const existingIds = new Set(groupEntities.map(e => e.entity_id));
-        const waterEntities = allEntities.filter(entity =>
-          !existingIds.has(entity.entity_id) && (
-            entity.entity_id.includes('water') ||
+        const waterEntities = allEntities.filter(entity => {
+          if (existingIds.has(entity.entity_id)) return false;
+          const domain = entity.entity_id.split('.')[0];
+          // Only binary_sensor moisture and water-valve domains legitimately carry water state;
+          // anything else (sensors, meters, vacuums named "...water...") stays out of the chip.
+          const legitWaterDomain = ['binary_sensor'].includes(domain)
+            || ['valve', 'irrigation'].includes(domain);
+          const looksLikeWaterEntity = (entity.entity_id.includes('water') ||
             entity.entity_id.includes('leak') ||
-            entity.entity_id.includes('flood') ||
-            entity.attributes.device_class === 'moisture'
-          )
-        );
+            entity.entity_id.includes('flood')) && legitWaterDomain;
+          const isMoistureBinarySensor = domain === 'binary_sensor' && entity.attributes.device_class === 'moisture';
+          return isMoistureBinarySensor || looksLikeWaterEntity;
+        });
         groupEntities.push(...waterEntities);
       }
 
@@ -542,7 +563,7 @@ export class AppleChips {
       }
     }
 
-    // Apply saved chip order
+    // Apply saved chip order only (hidden chips were already dropped above)
     this.chips = this.applySavedChipsOrder(this.chips);
   }
 
@@ -611,6 +632,29 @@ export class AppleChips {
           animation: apple-home-shake 1.3s ease-in-out infinite;
           touch-action: none;
         }
+
+        .chips-edit-toggle {
+          position: absolute;
+          inset-inline-end: var(--apple-page-padding, 22px);
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 5;
+          background: rgba(56, 56, 56, 0.46);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: none;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          color: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .chips-edit-toggle ha-icon { --mdc-icon-size: 18px; }
+        .chips-edit-toggle:active { transform: translateY(-50%) scale(0.92); }
 
         /* Drag placeholder for chip wrappers */
         .chip-wrapper.drag-placeholder {
@@ -828,11 +872,11 @@ export class AppleChips {
         <div class="chips-carousel-container ${RTLHelper.isRTL() ? 'rtl' : 'ltr'}">
           <div class="chips-grid" data-area-id="chips" data-section-type="chips">
             ${this.chips.map(chip => `
-              <div class="chip-wrapper ${this.editMode ? 'edit-mode' : ''}" 
-                   data-entity-id="${chip.group}" 
+              <div class="chip-wrapper ${this.editMode ? 'edit-mode' : ''}"
+                   data-entity-id="${chip.group}"
                    data-chip-id="${chip.group}">
-                <div class="chip ${chip.group === this.activeGroup ? 'active' : ''}" 
-                     data-group="${chip.group}" 
+                <div class="chip ${chip.group === this.activeGroup ? 'active' : ''}"
+                     data-group="${chip.group}"
                      style="--chip-background-color: ${chip.backgroundColor}; --chip-icon-color: ${chip.iconColor};"
                      ${chip.navigationPath ? `data-navigation="${chip.navigationPath}"` : ''}>
                   <div class="chip-icon">
@@ -847,16 +891,27 @@ export class AppleChips {
             `).join('')}
           </div>
         </div>
+        ${this.editMode ? `
+        <button class="chips-edit-toggle" title="${localize('chips_edit.title')}">
+          <ha-icon icon="mdi:pencil-off"></ha-icon>
+        </button>` : ''}
       </div>
     `;
   }
 
   private attachEventListeners() {
     if (!this.container) return;
-    
+
     // Add click handlers to chips (not chip wrappers)
     this.container.querySelectorAll('.chip').forEach((chip: any) => {
       chip.addEventListener('click', this.handleChipClick.bind(this));
+    });
+
+    // Chips edit sheet button - only present in edit mode
+    this.container.querySelector('.chips-edit-toggle')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.chipsEditRequested?.();
     });
   }
 

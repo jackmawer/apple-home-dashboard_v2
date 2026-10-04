@@ -55,7 +55,17 @@ export class HomePage {
       this.energySection = new EnergySection(this.customizationManager);
       this.batterySection = new BatterySection(this.customizationManager);
       this.calendarSection = new CalendarSection(this.customizationManager);
+      this.applyExcludeTogglersToSections();
     }
+  }
+
+  // Edit-mode quick-exclude callback from the host view (AppleHomeView)
+  excludeToggler?: (entityId: string) => void | Promise<void>;
+
+  private applyExcludeTogglersToSections() {
+    if (this.areaSection) this.areaSection.excludeToggler = this.excludeToggler;
+    if (this.scenesSection) this.scenesSection.excludeToggler = this.excludeToggler;
+    if (this.camerasSection) this.camerasSection.excludeToggler = this.excludeToggler;
   }
 
   private createHomeTitle(title: string): HTMLElement {

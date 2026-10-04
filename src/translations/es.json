@@ -164,7 +164,8 @@
     "edit_cameras_view": "Editar Vista Cámaras",
     "edit_room_view": "Editar Vista Habitación",
     "make_tall": "Hacer Alto",
-    "make_normal_size": "Tamaño Normal"
+    "make_normal_size": "Tamaño Normal",
+    "exclude_from_view": "Ocultar de esta vista"
   },
   "toggles": {
     "hide_header": "Ocultar Encabezado",
@@ -366,5 +367,9 @@
     "nothing_playing": "Nada en reproducción",
     "source": "Fuente",
     "speakers": "Altavoces"
+  },
+  "chips_edit": {
+    "title": "Ocultar chips",
+    "hint": "Los chips ocultos seguirán así hasta que los reactive aquí."
   }
 }

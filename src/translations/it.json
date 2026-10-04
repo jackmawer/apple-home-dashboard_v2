@@ -164,7 +164,8 @@
     "edit_cameras_view": "Modifica Vista Telecamere",
     "edit_room_view": "Modifica Vista Stanza",
     "make_tall": "Rendi Alto",
-    "make_normal_size": "Dimensione Normale"
+    "make_normal_size": "Dimensione Normale",
+    "exclude_from_view": "Nascondi da questa vista"
   },
   "toggles": {
     "hide_header": "Nascondi Intestazione",
@@ -366,5 +367,9 @@
     "nothing_playing": "Nessun contenuto",
     "source": "Sorgente",
     "speakers": "Altoparlanti"
+  },
+  "chips_edit": {
+    "title": "Nascondi chip",
+    "hint": "I chip nascosti restano tali finché non li riattivi qui."
   }
 }

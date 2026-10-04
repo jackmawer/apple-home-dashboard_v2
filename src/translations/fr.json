@@ -164,7 +164,8 @@
     "edit_cameras_view": "Modifier Vue Caméras",
     "edit_room_view": "Modifier Vue Pièce",
     "make_tall": "Rendre Haute",
-    "make_normal_size": "Taille Normale"
+    "make_normal_size": "Taille Normale",
+    "exclude_from_view": "Masquer de cette vue"
   },
   "toggles": {
     "hide_header": "Masquer En-tête",
@@ -366,5 +367,9 @@
     "nothing_playing": "Aucune lecture",
     "source": "Source",
     "speakers": "Enceintes"
+  },
+  "chips_edit": {
+    "title": "Masquer les puces",
+    "hint": "Les puces masquées le restent jusqu'à ce que vous les réactiviez ici."
   }
 }

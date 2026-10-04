@@ -164,7 +164,8 @@
     "edit_cameras_view": "Kameras bearbeiten",
     "edit_room_view": "Raum bearbeiten",
     "make_tall": "Groß machen",
-    "make_normal_size": "Normale Größe"
+    "make_normal_size": "Normale Größe",
+    "exclude_from_view": "Aus dieser Ansicht ausblenden"
   },
   "toggles": {
     "hide_header": "Header ausblenden",
@@ -366,5 +367,9 @@
     "nothing_playing": "Keine Wiedergabe",
     "source": "Quelle",
     "speakers": "Lautsprecher"
+  },
+  "chips_edit": {
+    "title": "Chips ausblenden",
+    "hint": "Ausgeblendete Chips bleiben versteckt, bis du sie hier wieder einschalten."
   }
 }

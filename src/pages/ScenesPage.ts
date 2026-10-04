@@ -11,6 +11,9 @@ export class ScenesPage {
   private _hass?: any;
   private _config?: any;
   private _container?: HTMLElement; // Store reference to the container
+  // Set by the host view (AppleHomeView): excludes an entity from the current
+  // view's list and removes the card from the DOM without a page rebuild.
+  excludeToggler?: (entityId: string) => void | Promise<void>;
 
   constructor() {
     // Regular class constructor
@@ -213,8 +216,19 @@ export class ScenesPage {
     // Add edit mode controls - but no tall toggle for scenes
     const controls = document.createElement('div');
     controls.className = 'entity-controls';
-    // Scenes don't have resize controls
-    
+
+    // Edit-mode quick exclude
+    const excludeButton = document.createElement('button');
+    excludeButton.className = 'entity-control-btn exclude-toggle';
+    excludeButton.innerHTML = `<ha-icon icon="mdi:eye-off"></ha-icon>`;
+    excludeButton.title = localize('edit.exclude_from_view');
+    excludeButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.excludeToggler?.(cardConfig.entity);
+    });
+    controls.appendChild(excludeButton);
+
     wrapper.appendChild(controls);
     wrapper.appendChild(cardElement);
     gridContainer.appendChild(wrapper);

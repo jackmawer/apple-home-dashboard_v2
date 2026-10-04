@@ -67,7 +67,17 @@ export class GroupPage {
       this.batterySection = new BatterySection(this.customizationManager);
       this.peopleSection = new PeopleSection(this.customizationManager);
       this.calendarSection = new CalendarSection(this.customizationManager);
+      this.applyExcludeTogglersToSections();
     }
+  }
+
+  // Edit-mode quick-exclude callback from the host view (AppleHomeView)
+  excludeToggler?: (entityId: string) => void | Promise<void>;
+
+  private applyExcludeTogglersToSections() {
+    if (this.areaSection) this.areaSection.excludeToggler = this.excludeToggler;
+    if (this.scenesSection) this.scenesSection.excludeToggler = this.excludeToggler;
+    if (this.camerasSection) this.camerasSection.excludeToggler = this.excludeToggler;
   }
 
   /**

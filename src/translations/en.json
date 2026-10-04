@@ -161,7 +161,8 @@
     "edit_cameras_view": "Edit Cameras View",
     "edit_room_view": "Edit Room View",
     "make_tall": "Make Tall",
-    "make_normal_size": "Make Normal Size"
+    "make_normal_size": "Make Normal Size",
+    "exclude_from_view": "Hide from this view"
   },
   "toggles": {
     "hide_header": "Hide Header",
@@ -363,5 +364,9 @@
     "nothing_playing": "Nothing playing",
     "source": "Source",
     "speakers": "Speakers"
+  },
+  "chips_edit": {
+    "title": "Hide Chips",
+    "hint": "Chips stay hidden until you turn them back on here."
   }
 }

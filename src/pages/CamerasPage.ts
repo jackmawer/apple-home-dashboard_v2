@@ -7,6 +7,9 @@ import { localize } from '../utils/LocalizationService';
 
 export class CamerasPage {
   private _container?: HTMLElement;
+  // Set by the host view (AppleHomeView): excludes an entity from the current
+  // view's list and removes the card from the DOM without a page rebuild.
+  excludeToggler?: (entityId: string) => void | Promise<void>;
   private customizationManager?: CustomizationManager;
   private dragAndDropManager?: DragAndDropManager;
   private _hass?: any;
@@ -216,8 +219,19 @@ export class CamerasPage {
     // Add edit mode controls - but no tall toggle for cameras
     const controls = document.createElement('div');
     controls.className = 'entity-controls';
-    // Cameras don't have resize controls
-    
+
+    // Edit-mode quick exclude
+    const excludeButton = document.createElement('button');
+    excludeButton.className = 'entity-control-btn exclude-toggle';
+    excludeButton.innerHTML = `<ha-icon icon="mdi:eye-off"></ha-icon>`;
+    excludeButton.title = localize('edit.exclude_from_view');
+    excludeButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.excludeToggler?.(cardConfig.entity);
+    });
+    controls.appendChild(excludeButton);
+
     wrapper.appendChild(controls);
     wrapper.appendChild(cardElement);
     gridContainer.appendChild(wrapper);

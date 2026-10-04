@@ -164,7 +164,8 @@
     "edit_cameras_view": "Bewerk Camera's Weergave",
     "edit_room_view": "Bewerk Kamer Weergave",
     "make_tall": "Maak Hoog",
-    "make_normal_size": "Normale Grootte"
+    "make_normal_size": "Normale Grootte",
+    "exclude_from_view": "Verbergen uit deze weergave"
   },
   "toggles": {
     "hide_header": "Verberg Header",
@@ -366,5 +367,9 @@
     "nothing_playing": "Niets aan het afspelen",
     "source": "Bron",
     "speakers": "Luidsprekers"
+  },
+  "chips_edit": {
+    "title": "Chips verbergen",
+    "hint": "Verborgen chips blijven verborgen totdat je ze hier weer inschakelt."
   }
 }

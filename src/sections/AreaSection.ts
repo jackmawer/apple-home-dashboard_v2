@@ -11,6 +11,9 @@ export class AreaSection {
   private cardManager: CardManager;
   private _areasCache: Area[] | null = null;
   private _areasCacheHass: any = null;
+  // Set by the host view (AppleHomeView): excludes an entity from the current
+  // view's list and removes the card from the DOM without a page rebuild.
+  excludeToggler?: (entityId: string) => void | Promise<void>;
 
   constructor(customizationManager: CustomizationManager, cardManager?: CardManager) {
     this.customizationManager = customizationManager;
@@ -214,22 +217,36 @@ export class AreaSection {
       // Only show tall toggle for regular entities (not cameras or scenes)
       if (!isFixedSizeEntity) {
         controlsHTML = `
-          <button class="entity-control-btn tall-toggle ${shouldBeTall ? 'active' : ''}" 
-                  data-action="toggle-tall" 
-                  title="Toggle card design">
+          <button class="entity-control-btn tall-toggle ${shouldBeTall ? 'active' : ''}"
+                  data-action="toggle-tall"
+                  title="${localize('edit.make_tall')}/${localize('edit.make_normal_size')}">
             <ha-icon icon="mdi:${shouldBeTall ? 'arrow-collapse' : 'arrow-expand'}"></ha-icon>
+          </button>
+          <button class="entity-control-btn exclude-toggle"
+                  data-action="toggle-exclude"
+                  title="${localize('edit.exclude_from_view')}">
+            <ha-icon icon="mdi:eye-off"></ha-icon>
           </button>
         `;
       }
-      
+
       controlsDiv.innerHTML = controlsHTML;
-      
+
       // Add event listeners for controls
       const tallToggle = controlsDiv.querySelector('.tall-toggle') as HTMLButtonElement;
       if (tallToggle && onTallToggle) {
         tallToggle.addEventListener('click', (e) => {
           e.stopPropagation();
           onTallToggle(cardConfig.entity, container.dataset.areaId || 'unknown');
+        });
+      }
+      // Edit-mode quick exclude: writes straight to the exclude list held
+      // deferred by the view, then fades the card out without a rebuild.
+      const excludeToggle = controlsDiv.querySelector('.exclude-toggle') as HTMLButtonElement;
+      if (excludeToggle && this.excludeToggler) {
+        excludeToggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          void this.excludeToggler!(cardConfig.entity);
         });
       }
       

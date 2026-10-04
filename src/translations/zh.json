@@ -164,7 +164,8 @@
     "edit_cameras_view": "编辑摄像头视图",
     "edit_room_view": "编辑房间视图",
     "make_tall": "变高",
-    "make_normal_size": "正常大小"
+    "make_normal_size": "正常大小",
+    "exclude_from_view": "从此屏幕隐藏"
   },
   "toggles": {
     "hide_header": "隐藏标题栏",
@@ -366,5 +367,9 @@
     "nothing_playing": "未在播放",
     "source": "来源",
     "speakers": "扬声器"
+  },
+  "chips_edit": {
+    "title": "隐藏小组件",
+    "hint": "被隐藏的小组件将持续隐藏，直到在此重新开启。"
   }
 }

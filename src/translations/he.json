@@ -164,7 +164,8 @@
     "edit_cameras_view": "עריכת תצוגת מצלמות",
     "edit_room_view": "עריכת תצוגת חדר",
     "make_tall": "הפוך לגבוה",
-    "make_normal_size": "הפוך לרגיל"
+    "make_normal_size": "הפוך לרגיל",
+    "exclude_from_view": "הסתרה ממסך זה"
   },
   "toggles": {
     "hide_header": "הסתר פס עליון",
@@ -366,5 +367,9 @@
     "nothing_playing": "אין השמעה",
     "source": "מקור",
     "speakers": "רמקולים"
+  },
+  "chips_edit": {
+    "title": "הסתרת צ׳יפים",
+    "hint": "צ׳יפים מוסתרים כך יישארו עד שתפעיל אותם מחדש כאן."
   }
 }
